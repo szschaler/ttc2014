@@ -1,0 +1,43 @@
+public class [%=currentClass.name%] {
+[%
+  var uniqueID = new Map;
+  for (prop : Model!Attribute in currentClass.attributes) {
+    %]
+  private [%=prop.type.name%] [%=prop.getUniqueName(uniqueID)%] =  [%if (prop.type.isKindOf(Model!DataType)) {%] "[%=prop.value %]" [%} else {%] new [%=prop.type.name%] ()[%}%];
+    [%
+  }
+%]
+
+  public [%=currentClass.name%]() {}
+  
+  [%if (not currentClass.attributes->isEmpty()) {%]
+  public [%=currentClass.name%]([%var first = true; var uniqueID = new Map; 
+  	for (prop : Model!Attribute in currentClass.attributes) {if (not first) {%], [%} 
+  		else {first = false;}%][%=prop.type.name%] [%=prop.getUniqueName(uniqueID)%][%}%]) {
+   		 [%
+    		var uniqueID = new Map;
+    		for (prop : Model!Attribute in currentClass.attributes) {
+    			  var propName : String = prop.getUniqueName(uniqueID);
+    	%]
+   			 this.[%=propName%] = [%=propName%];
+   		 [%}%]
+  }
+  [%}%]
+}
+
+[%
+operation Model!Attribute getUniqueName(uniqueID) : String {
+  var result : Integer = 0;
+  if (uniqueID.containsKey(self.name)) {
+    result = uniqueID.get(self.name);
+    uniqueID.put(self.name, result + 1);
+  }
+  else {
+    uniqueID.put(self.name, 1);
+  }
+  
+  return self.name + result;
+}
+
+%]
+

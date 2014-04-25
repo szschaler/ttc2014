@@ -1,0 +1,31 @@
+public class [%=currentClass.name%] {
+  public static void main (String[] args) {
+    [%=currentClass.name%] top = [%=currentClass.generateConstructorCall()%];    
+  }
+}
+
+[%
+  operation Model!Class generateConstructorCall() : String {
+    var result : String = "new " + self.name + " (";
+    var first = true;
+    
+    for (attr in self.attributes) {
+      if (not first) {
+        result = result + ", ";
+      }
+      else {
+        first = false;
+      }
+      
+      if (attr.type.isKindOf(Model!DataType)) {
+        result = result + '"' + attr.value + '"';
+      }
+      else {
+        result = result + attr.type.generateConstructorCall();
+      }
+    }
+    
+    result = result + ")";
+    return result;
+  }
+%]
