@@ -18,7 +18,7 @@
 			<file>
 				<include name="${dir}/*.cs" />
 
-				<superimpose artifactHandler="java15" />
+				<superimpose artifactHandler="csharp" />
 			</file>
 		</epsilon.eglMerge>
     </target>
