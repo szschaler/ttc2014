@@ -3,7 +3,7 @@ public class [%=currentClass.name%] {
   var uniqueID = new Map;
   for (prop : Model!Attribute in currentClass.attributes) {
     %]
-  private [%=prop.type.name%] [%=prop.getUniqueName(uniqueID)%] =  [%if (prop.type.isKindOf(Model!DataType)) {%] "[%=prop.value %]" [%} else {%] new [%=prop.type.name%] ()[%}%];
+  private [%=prop.type.name%] [%=prop.getUniqueName(uniqueID)%];
     [%
   }
 %]
@@ -40,4 +40,3 @@ operation Model!Attribute getUniqueName(uniqueID) : String {
 }
 
 %]
-

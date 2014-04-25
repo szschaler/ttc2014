@@ -1,6 +1,6 @@
 <project name="GenerateFIXML_to_Java" default="top" basedir="..">
 	<property name="dir" value="${basedir}/src" />
-	<property name="file" value="${basedir}/files/test1.xml" />
+	<property name="file" value="${basedir}/files/test.xml" />
 	
 	<!-- ================================= 
           target: top
