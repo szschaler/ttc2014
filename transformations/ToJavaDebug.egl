@@ -1,0 +1,10 @@
+[%
+  var idx = 0;
+  for (cl in Model!Class.all()) {
+    var t := TemplateFactory.load('JavaOneClass.egl');
+    t.populate ('currentClass', cl);
+    ('Starting to generate ' + cl.name + '.java').println();    
+    t.generate ('../src/' + cl.name + idx + '.java'); 
+    idx = idx + 1;
+  }
+%]

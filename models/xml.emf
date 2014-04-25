@@ -1,0 +1,15 @@
+@namespace(
+	uri="http://inf.kcl.ac.uk/ttc2014/xml",
+	prefix="_xml")
+package xml;
+
+class XMLNode {
+	attr String tag;
+	val XMLAttribute[*] attributes;
+	val XMLNode[*] subnodes; 
+}
+
+class XMLAttribute {
+	attr String name;
+	attr String value;
+}

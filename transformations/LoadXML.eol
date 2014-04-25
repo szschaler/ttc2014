@@ -1,0 +1,30 @@
+// Use with PlainXML driver
+
+generateFor (XMLDoc.root);
+
+operation  generateFor (e : Element) : XML!XMLNode {
+	var node : XML!XMLNode = new XML!XMLNode;
+	node.tag = e.tagName;
+	
+	if (e.getAttributes().length > 0) {
+	  //('Generating attributes for ' + e).println();
+	  for (idx in Sequence{1..e.getAttributes().length}) {
+  	    var attr = e.getAttributes().item (idx - 1);
+	  
+	    //('Generating for attribute ' + attr).println();
+	  
+	    var xmlAttr : XML!XMLAttribute = new XML!XMLAttribute;
+	    node.attributes = node.attributes->including (xmlAttr);
+	    xmlAttr.name = attr.nodeName;
+	    xmlAttr.value = attr.nodeValue;
+	  }
+	  
+	  //('Generated attribute list is ' + node.attributes).println();
+	}
+	
+	for (elt in e.children) {
+	  node.subnodes = node.subnodes->including (generateFor (elt));
+	}
+	
+	return node;
+}

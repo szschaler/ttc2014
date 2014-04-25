@@ -1,0 +1,24 @@
+@namespace(
+	uri="http://inf.kcl.ac.uk/ttc2014/classes",
+	prefix="classes")
+package classes;
+
+class Model {
+	val Class topClass;
+}
+
+abstract class Type{
+	attr String name;
+}
+
+class DataType extends Type { }
+
+class Class extends Type{
+	val Attribute[*] attributes;
+}
+
+class Attribute {
+	attr String name;
+	attr String value;
+	ref Type type;
+}

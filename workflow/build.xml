@@ -1,0 +1,84 @@
+<project name="GenerateFIXML_to_Java" default="top" basedir="..">
+	<property name="dir" value="${basedir}/src" />
+	<property name="file" value="${basedir}/files/test1.xml" />
+	
+	<!-- ================================= 
+          target: top
+          
+          Generates everything              
+         ================================= -->
+    <target name="top" 
+    	    depends="init, transformToClass, main_method" 
+    	    description="Generates everything">
+        <epsilon.eglRegister src="transformations/ToJava.egl">
+        	<model ref="classes" as="Model"/>
+        </epsilon.eglRegister>
+    	
+		<epsilon.eglMerge>
+			<file>
+				<include name="${dir}/*.java" />
+
+				<superimpose artifactHandler="java15" />
+			</file>
+		</epsilon.eglMerge>
+    </target>
+	
+	<target name="main_method">
+		<epsilon.eglRegister src="transformations/GenerateMain.egl">
+			<model ref="classes" as="Model"/>
+		</epsilon.eglRegister>
+	</target>
+	
+	<target name="top_debug"
+	        depends="init, transformToClass">
+        <epsilon.egl src="transformations/ToJavaDebug.egl">
+        	<model ref="classes" as="Model"/>
+        </epsilon.egl>
+	</target>
+	    	    
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: transformToClass                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="transformToClass" depends="readXML">
+    	   <epsilon.emf.loadModel name="classes" 
+    	                          metamodelfile="${basedir}/models/classes.ecore"
+    	                          read="false" store="false"/>
+            <epsilon.etl src="transformations/XMLtoClass.etl">
+            	<model ref="xmlModel" as="XML" />
+            	<model ref="classes" as="Classes" />
+            </epsilon.etl>
+    </target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: readXML                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="readXML" depends="init">
+    	    <epsilon.emf.loadModel name="xmlModel" 
+    	    	                   metamodelfile="${basedir}/models/xml.ecore" 
+    	    	                   read="false" store="false"/>
+            <epsilon.eol src="transformations/LoadXML.eol">
+            	<model ref="xmlFile" as="XMLDoc" />
+            	<model ref="xmlModel" as="XML" />
+            </epsilon.eol>
+    </target>
+
+	<target name="init">
+		<!-- Introduce the superimposition merge strategy -->
+		<typedef name="superimpose" classname="org.eclipse.epsilon.egl.symmetric_ao.tasks.superimpose.SuperimpositionMerge"/>
+		
+		<!-- Ensure ${dir} exists and is empty -->
+		<mkdir dir="${dir}" />
+        <delete includeemptydirs="true">
+            <fileset dir="${dir}" includes="**/*" />
+        </delete>
+
+		<epsilon.xml.loadModel
+			name="xmlFile"
+			file="${file}"
+			read="true"
+			failonerrors="true"
+			failonwarnings="true"			
+		/>		
+	</target>
+</project>
