@@ -1,8 +1,8 @@
 
-public static void main (String[] args) {
+  public static void main (String[] args) {
     [%=currentClass.name%] top = [%=currentClass.generateConstructorCall()%];    
   }
-public class [%=currentClass.name%] {
+  public class [%=currentClass.name%] {
 }
 
 [%

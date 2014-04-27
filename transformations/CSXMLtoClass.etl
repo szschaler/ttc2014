@@ -1,0 +1,45 @@
+pre {
+  var STRING_TYPE : Classes!DataType = new Classes!DataType;
+  STRING_TYPE.name = "string";  
+}
+
+rule NodeToClass 
+	transform s : XML!XMLNode
+	to t : Classes!Class {
+
+  t.name = s.tag;
+  
+  t.attributes ::= s.attributes;
+  
+  for (elt in s.subnodes) {
+    var attr : Classes!Attribute = new Classes!Attribute;
+    t.attributes = t.attributes->including(attr);
+    attr.name = elt.tag; 
+    attr.type ::= elt;
+  }
+}
+
+rule AttrToAttr
+     transform s : XML!XMLAttribute
+     to t : Classes!Attribute {
+     
+  t.name = s.name;
+  t.value = s.value;
+  
+  t.type = STRING_TYPE;
+}
+
+post  {
+  var mdl : Classes!Model = new Classes!Model;
+  mdl.topClass ::= getTopNode();  
+  ('topClass is ' + mdl.topClass.name).println();	
+}
+
+operation getTopNode() : XML!XMLNode {
+  var resultSet = XML!XMLNode.all;
+  for (node in XML!XMLNode.all) {
+    resultSet = resultSet->excludingAll (node.subnodes);
+  }
+
+  return resultSet.random();
+}
