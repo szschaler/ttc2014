@@ -1,8 +1,7 @@
-
+public class [%=currentClass.name%] {
   public static void main (String[] args) {
     [%=currentClass.name%] top = [%=currentClass.generateConstructorCall()%];    
   }
-  public class [%=currentClass.name%] {
 }
 
 [%
