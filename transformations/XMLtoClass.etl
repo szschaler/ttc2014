@@ -1,6 +1,6 @@
 pre {
   var STRING_TYPE : Classes!DataType = new Classes!DataType;
-  STRING_TYPE.name = "String";  
+  STRING_TYPE.name = "String";
 }
 
 rule NodeToClass 
@@ -42,4 +42,17 @@ operation getTopNode() : XML!XMLNode {
   }
 
   return resultSet.random();
+}
+
+operation String getUniqueVersion(uniqueID) : String {
+  var result : Integer = 0;
+  if (uniqueID.containsKey(self)) {
+    result = uniqueID.get(self);
+    uniqueID.put(self, result + 1);
+  }
+  else {
+    uniqueID.put(self, 1);
+  }
+  
+  return self + result;
 }
