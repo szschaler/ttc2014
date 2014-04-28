@@ -8,13 +8,18 @@ rule NodeToClass
 	to t : Classes!Class {
 
   t.name = s.tag;
-  
-  t.attributes ::= s.attributes;
+ 
+  var uniqueID = new Map;
+  for (attr in s.attributes) {
+    var newAttr = attr.equivalent();
+    newAttr.name = newAttr.name.getUniqueVersion(uniqueID);
+    t.attributes = t.attributes->including (newAttr);
+  }
   
   for (elt in s.subnodes) {
     var attr : Classes!Attribute = new Classes!Attribute;
     t.attributes = t.attributes->including(attr);
-    attr.name = elt.tag; 
+    attr.name = elt.tag.getUniqueVersion(uniqueID); 
     attr.type ::= elt;
   }
 }
