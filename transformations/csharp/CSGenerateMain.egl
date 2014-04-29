@@ -2,6 +2,6 @@
   for (mdl in Model!Model) {
     var t := TemplateFactory.load('CSMainMethod.egl');
     t.populate ('currentClass', mdl.topClass);
-    t.generate ('../src/' + mdl.topClass.name + '.cs');
+    t.generate ('../../src/' + mdl.topClass.name + '.cs');
   }
 %]

@@ -2,6 +2,6 @@
   for (mdl in Model!Model) {
     var t := TemplateFactory.load('JavaMainMethod.egl');
     t.populate ('currentClass', mdl.topClass);
-    t.generate ('../src/' + mdl.topClass.name + '.java');
+    t.generate ('../../src/' + mdl.topClass.name + '.java');
   }
 %]

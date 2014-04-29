@@ -10,7 +10,7 @@
     <target name="top" 
     	    depends="init, transformToClass, main_method" 
     	    description="Generates everything">
-        <epsilon.eglRegister src="transformations/ToJava.egl">
+        <epsilon.eglRegister src="transformations/java/ToJava.egl">
         	<model ref="classes" as="Model"/>
         </epsilon.eglRegister>
     	
@@ -24,14 +24,14 @@
     </target>
 	
 	<target name="main_method">
-		<epsilon.eglRegister src="transformations/GenerateMain.egl">
+		<epsilon.eglRegister src="transformations/java/GenerateMain.egl">
 			<model ref="classes" as="Model"/>
 		</epsilon.eglRegister>
 	</target>
 	
 	<target name="top_debug"
 	        depends="init, transformToClass">
-        <epsilon.egl src="transformations/ToJavaDebug.egl">
+        <epsilon.egl src="transformations/java/ToJavaDebug.egl">
         	<model ref="classes" as="Model"/>
         </epsilon.egl>
 	</target>
@@ -44,7 +44,7 @@
     	   <epsilon.emf.loadModel name="classes" 
     	                          metamodelfile="${basedir}/models/classes.ecore"
     	                          read="false" store="false"/>
-            <epsilon.etl src="transformations/XMLtoClass.etl">
+            <epsilon.etl src="transformations/general/XMLtoClass.etl">
             	<model ref="xmlModel" as="XML" />
             	<model ref="classes" as="Classes" />
             </epsilon.etl>
@@ -57,7 +57,7 @@
     	    <epsilon.emf.loadModel name="xmlModel" 
     	    	                   metamodelfile="${basedir}/models/xml.ecore" 
     	    	                   read="false" store="false"/>
-            <epsilon.eol src="transformations/LoadXML.eol">
+            <epsilon.eol src="transformations/general/LoadXML.eol">
             	<model ref="xmlFile" as="XMLDoc" />
             	<model ref="xmlModel" as="XML" />
             </epsilon.eol>
