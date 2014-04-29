@@ -4,7 +4,7 @@
     var t := TemplateFactory.load('CSOneClass.egl');
     t.populate ('currentClass', cl);
     ('Starting to generate ' + cl.name + '.cs').println();    
-    t.generate ('../../src/' + cl.name + idx + '.cs'); 
+    t.generate (tgtdir + cl.name + idx + '.cs'); 
     idx = idx + 1;
   }
 %]

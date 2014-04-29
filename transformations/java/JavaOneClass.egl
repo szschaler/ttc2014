@@ -1,3 +1,5 @@
+package [%=pck%];
+
 public class [%=currentClass.name%] {
 [%
   for (prop : Model!Attribute in currentClass.attributes) {

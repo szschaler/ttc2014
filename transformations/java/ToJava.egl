@@ -2,6 +2,6 @@
   for (cl in Model!Class.all()) {
     var t := TemplateFactory.load('JavaOneClass.egl');
     t.populate ('currentClass', cl);
-    t.generate ('../../src/' + cl.name + '.java');
+    t.generate (tgtdir + cl.name + '.java');
   }
 %]
