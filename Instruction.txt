@@ -1,0 +1,33 @@
+Once the Eclipse program is opened, the user should be able to see two project packages:
+*TTC2014
+
+Inside the TTC2014 package, there exists several document file:
+	*src; it includes the output of the transformation both in Java and C# format
+	*Models; it includes Models and Meta-models of the transformation
+		-class.ecore
+		-classes.emf
+		-xml.ecore
+		-xml.emf
+
+	*Transformation; it consists of the following folders:
+		-Java Transformation; which includes;
+			#All the test cases
+			#XMLtoClass; it is written in ETL and produces instances of the meta-model
+			#GenerateMain.egl
+			#JavaMainMethod.egl
+			#JavaOneClass.egl
+			#ToJava.egl
+			#ToJavaDebug.egl
+			#xml.build; by running this file, the transformation would produce the result only in Java format
+
+		-CS Transformation; which includes;
+			#All the test cases
+			#XMLtoClass; it is written in ETL and produces instances of the meta-model
+			#CSGenerateMain.egl
+			#CSMainMethod.egl
+			#CSOneClass.egl
+			#CS.egl
+			#ToCSDebug.egl
+			#csxml.build; by running this file, the transformation would produce the result only in CSharp files
+
+	*workflow; it consists of a single xml.build file that by running it, the transformation would produce results in all languages automatically
