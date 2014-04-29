@@ -9,24 +9,27 @@ public class [%=currentClass.name%] {
 [%
   operation Model!Class generateConstructorCall() : String {
     var result : String = "new " + self.name + " (";
-    var first = true;
     
-    for (attr in self.attributes) {
-      if (not first) {
-        result = result + ", ";
-      }
-      else {
-        first = false;
-      }
-      
-      if (attr.type.isKindOf(Model!DataType)) {
-        result = result + '"' + attr.value + '"';
-      }
-      else {
-        result = result + attr.type.generateConstructorCall();
-      }
-    }
-    
+    // Java doesn't like too many parameters
+    if (self.attributes->size() <= 200) {
+	  var first = true;    
+	  for (attr in self.attributes) {
+	    if (not first) {
+	      result = result + ", ";
+	    }
+	    else {
+	      first = false;
+	    }
+	      
+	    if (attr.type.isKindOf(Model!DataType)) {
+	      result = result + '"' + attr.value + '"';
+	    }
+	    else {
+	      result = result + attr.type.generateConstructorCall();
+	    }
+	  }
+	}
+	    
     result = result + ")";
     return result;
   }
