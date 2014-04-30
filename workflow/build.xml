@@ -28,65 +28,73 @@
 	</target>
 	
 	<target name="generate-java" depends="generate-general">
-		<epsilon.eglRegister src="transformations/java/GenerateMain.egl">
-			<model ref="classes" as="Model"/>
-			<parameter name="tgtdir" value="${generate-tgt}/java/"/>
-			<parameter name="pck" value="${tgtsubdir}.java"/>
-		</epsilon.eglRegister>
-
-        <epsilon.eglRegister src="transformations/java/ToJava.egl">
-        	<model ref="classes" as="Model"/>
-			<parameter name="tgtdir" value="${generate-tgt}/java/"/>
-			<parameter name="pck" value="${tgtsubdir}.java"/>
-        </epsilon.eglRegister>
-    	
-		<epsilon.eglMerge>
-			<file>
-				<include name="${generate-tgt}/java/*.java" />
-
-				<superimpose artifactHandler="java15" />
-			</file>
-		</epsilon.eglMerge>
+		<timer name="ClassToJava">
+			<epsilon.eglRegister src="transformations/java/GenerateMain.egl">
+				<model ref="classes" as="Model"/>
+				<parameter name="tgtdir" value="${generate-tgt}/java/"/>
+				<parameter name="pck" value="${tgtsubdir}.java"/>
+			</epsilon.eglRegister>
+	
+	        <epsilon.eglRegister src="transformations/java/ToJava.egl">
+	        	<model ref="classes" as="Model"/>
+				<parameter name="tgtdir" value="${generate-tgt}/java/"/>
+				<parameter name="pck" value="${tgtsubdir}.java"/>
+	        </epsilon.eglRegister>
+	    	
+			<epsilon.eglMerge>
+				<file>
+					<include name="${generate-tgt}/java/*.java" />
+	
+					<superimpose artifactHandler="java15" />
+				</file>
+			</epsilon.eglMerge>
+		</timer>
 	</target>
 	
 	<target name="generate-csharp" depends="generate-general">
-		<epsilon.eglRegister src="transformations/csharp/CSGenerateMain.egl">
-			<model ref="classes" as="Model"/>
-			<parameter name="tgtdir" value="${generate-tgt}/csharp/"/>
-		</epsilon.eglRegister>
-
-        <epsilon.eglRegister src="transformations/csharp/ToCS.egl">
-        	<model ref="classes" as="Model"/>
-			<parameter name="tgtdir" value="${generate-tgt}/csharp/"/>
-        </epsilon.eglRegister>
-    	
-		<epsilon.eglMerge>
-			<file>
-				<include name="${generate-tgt}/csharp/*.cs" />
-
-				<superimpose artifactHandler="csharp" />
-			</file>
-		</epsilon.eglMerge>
+		<timer name="ClassToCSharp">
+			<epsilon.eglRegister src="transformations/csharp/CSGenerateMain.egl">
+				<model ref="classes" as="Model"/>
+				<parameter name="tgtdir" value="${generate-tgt}/csharp/"/>
+			</epsilon.eglRegister>
+	
+	        <epsilon.eglRegister src="transformations/csharp/ToCS.egl">
+	        	<model ref="classes" as="Model"/>
+				<parameter name="tgtdir" value="${generate-tgt}/csharp/"/>
+	        </epsilon.eglRegister>
+	    	
+			<epsilon.eglMerge>
+				<file>
+					<include name="${generate-tgt}/csharp/*.cs" />
+	
+					<superimpose artifactHandler="csharp" />
+				</file>
+			</epsilon.eglMerge>
+		</timer>
 	</target>
 	
 	<target name="generate-general" depends="generate-init">
-		<epsilon.xml.loadModel name="xmlFile" file="${file}" read="true"
-		                       failonerrors="true" failonwarnings="true" />
-		
-		<epsilon.emf.loadModel name="xmlModel" metamodelfile="${basedir}/models/xml.ecore" 
-			                   read="false" store="false"/>
-		<epsilon.eol src="transformations/general/LoadXML.eol">
-			<model ref="xmlFile" as="XMLDoc" />
-			<model ref="xmlModel" as="XML" />
-		</epsilon.eol>
+		<timer name="LoadXML">
+			<epsilon.xml.loadModel name="xmlFile" file="${file}" read="true"
+			                       failonerrors="true" failonwarnings="true" />
+			
+			<epsilon.emf.loadModel name="xmlModel" metamodelfile="${basedir}/models/xml.ecore" 
+				                   read="false" store="false"/>
+			<epsilon.eol src="transformations/general/LoadXML.eol">
+				<model ref="xmlFile" as="XMLDoc" />
+				<model ref="xmlModel" as="XML" />
+			</epsilon.eol>
+		</timer>
 	
-		<epsilon.emf.loadModel name="classes" 
-		                       metamodelfile="${basedir}/models/classes.ecore"
-		                       read="false" store="false"/>
-		<epsilon.etl src="transformations/general/XMLtoClass.etl">
-			<model ref="xmlModel" as="XML" />
-			<model ref="classes" as="Classes" />
-		</epsilon.etl>	
+		<timer name="XMLToClass">
+			<epsilon.emf.loadModel name="classes" 
+			                       metamodelfile="${basedir}/models/classes.ecore"
+			                       read="false" store="false"/>
+			<epsilon.etl src="transformations/general/XMLtoClass.etl">
+				<model ref="xmlModel" as="XML" />
+				<model ref="classes" as="Classes" />
+			</epsilon.etl>
+		</timer>
 	</target>
 	
 	<target name="generate-init">
@@ -95,19 +103,25 @@
 
 		<mkdir dir="${generate-tgt}"/>
 		<mkdir dir="${generate-tgt}/java"/>
-		<mkdir dir="${generate-tgt}/csharp"/>		
+		<mkdir dir="${generate-tgt}/csharp"/>
 	</target>
 	
 	<target name="init">
 		<!-- Helper for foreach -->
 		<taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
-		<!-- Introduce the superimposition merge strategy -->
-		<typedef name="superimpose" classname="org.eclipse.epsilon.egl.symmetric_ao.tasks.superimpose.SuperimpositionMerge"/>
 		
-		<!-- Ensure ${tgtdir} exists and is empty -->
-		<mkdir dir="${tgtdir}" />
-        <delete includeemptydirs="true">
-            <fileset dir="${tgtdir}" includes="**/*" />
-        </delete>
+		<!-- Helper for timer -->
+		<taskdef name="timer" classname="uk.ac.kcl.inf.smal.ttc2014.ant.timer.Timer"/>
+		
+		<timer name="Init">
+			<!-- Introduce the superimposition merge strategy -->
+			<typedef name="superimpose" classname="org.eclipse.epsilon.egl.symmetric_ao.tasks.superimpose.SuperimpositionMerge"/>
+			
+			<!-- Ensure ${tgtdir} exists and is empty -->
+			<mkdir dir="${tgtdir}" />
+	        <delete includeemptydirs="true">
+	            <fileset dir="${tgtdir}" includes="**/*" />
+	        </delete>
+		</timer>
 	</target>
 </project>
