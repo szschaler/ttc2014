@@ -29,25 +29,29 @@
 	
 	<target name="generate-java" depends="generate-general">
 		<timer name="ClassToJava">
-			<epsilon.eglRegister src="transformations/java/GenerateMain.egl">
-				<model ref="classes" as="Model"/>
-				<parameter name="tgtdir" value="${generate-tgt}/java/"/>
-				<parameter name="pck" value="${tgtsubdir}.java"/>
-			</epsilon.eglRegister>
-	
-	        <epsilon.eglRegister src="transformations/java/ToJava.egl">
-	        	<model ref="classes" as="Model"/>
-				<parameter name="tgtdir" value="${generate-tgt}/java/"/>
-				<parameter name="pck" value="${tgtsubdir}.java"/>
-	        </epsilon.eglRegister>
-	    	
-			<epsilon.eglMerge>
-				<file>
-					<include name="${generate-tgt}/java/*.java" />
-	
-					<superimpose artifactHandler="java15" />
-				</file>
-			</epsilon.eglMerge>
+			<timer name="RegisterJava">
+				<epsilon.eglRegister src="transformations/java/GenerateMain.egl">
+					<model ref="classes" as="Model"/>
+					<parameter name="tgtdir" value="${generate-tgt}/java/"/>
+					<parameter name="pck" value="${tgtsubdir}.java"/>
+				</epsilon.eglRegister>
+		
+		        <epsilon.eglRegister src="transformations/java/ToJava.egl">
+		        	<model ref="classes" as="Model"/>
+					<parameter name="tgtdir" value="${generate-tgt}/java/"/>
+					<parameter name="pck" value="${tgtsubdir}.java"/>
+		        </epsilon.eglRegister>
+			</timer>
+			
+			<timer name="MergeJava">	    	
+				<epsilon.eglMerge>
+					<file>
+						<include name="${generate-tgt}/java/*.java" />
+		
+						<superimpose artifactHandler="java15" />
+					</file>
+				</epsilon.eglMerge>
+			</timer>
 		</timer>
 	</target>
 	
