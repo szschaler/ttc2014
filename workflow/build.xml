@@ -122,6 +122,11 @@
 			<!-- Introduce the superimposition merge strategy -->
 			<typedef name="superimpose" classname="org.eclipse.epsilon.egl.symmetric_ao.tasks.superimpose.SuperimpositionMerge"/>
 			
+			<!-- Introduce our special field composition rule -->
+			<epsilon.egl.superImpose.registerRules>
+				<rule name="FieldOverriding" class="uk.ac.kcl.inf.smal.ttc2014.ant.compositionrules.AdvancedFieldComposition"/>
+			</epsilon.egl.superImpose.registerRules>
+			
 			<!-- Ensure ${tgtdir} exists and is empty -->
 			<mkdir dir="${tgtdir}" />
 	        <delete includeemptydirs="true">
