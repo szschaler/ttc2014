@@ -19,7 +19,9 @@ rule NodeToClass
   for (elt in s.subnodes) {
     var attr : Classes!Attribute = new Classes!Attribute;
     t.attributes = t.attributes->including(attr);
-    attr.name = elt.tag.getUniqueVersion(uniqueID); 
+    // TODO: Need to add the underscore prefix to prevent an odd issue with how FeatureHouse treats attribute names.
+    attr.name = '_' + elt.tag.getUniqueVersion(uniqueID); 
+    //('Subnode attribute name: "' + attr.name + '"').println();
     attr.type ::= elt;
   }
 }
@@ -59,5 +61,10 @@ operation String getUniqueVersion(uniqueID) : String {
     uniqueID.put(self, 1);
   }
   
-  return self + result;
+  if (result == 0) {
+    return self;
+  }
+  else {
+    return self + result;
+  }
 }
