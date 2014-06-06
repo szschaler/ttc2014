@@ -4,7 +4,7 @@
 	<target name="top"
 		    description="Triggers all generation of all problems in all languages"
 		    depends="init">
-		<foreach param="file" target="try-generate-all" inheritall="true">
+		<foreach param="file" target="try-generate-all" inheritall="true" inheritrefs="true">
 			<path>
 				<fileset dir="${basedir}/files/">
 					<include name="**/*.xml"/>
