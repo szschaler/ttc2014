@@ -1,0 +1,46 @@
+package [%=pck%];
+
+public class [%=currentClass.name%] {
+[%
+  var attrs : Map := reconcileAttributes();
+  for (pName : String in attrs.keySet()) {
+    var isMulti := attrs.get(pName);
+    %]
+  private [%if (isMulti) {%]List<[%}%][%=pName %][%if (isMulti) {%]>[%}%] [%=pName %] = [%if (isMulti) {%]new ArrayList<>()[%} else { if (prop.type.isKindOf(Model!DataType)) {%] "[%=getProp(pName).value %]" [%} else {%] new [%=pName%] ()[%} }%]; 
+    [%  
+  }
+%]
+
+  public [%=currentClass.name%]() {}
+  
+  [%if ((not currentClass.attributes->isEmpty()) and
+        // Java is not happy with too many parameters 
+        (currentClass.attributes->size() <= 200)) {%]
+  public [%=currentClass.name%]([%var first = true;  
+  	for (prop : Model!Attribute in currentClass.attributes) {if (not first) {%], [%} 
+  		else {first = false;}%][%=prop.type.name%] [%=prop.name%][%}%]) {
+   		 [%
+    		for (prop : Model!Attribute in currentClass.attributes) {
+    	%]
+   			 this.[%=prop.name%] = [%=prop.name%];
+   		 [%}%]
+  }
+  [%}%]
+}
+
+[%
+operation reconcileAttributes () : Map {
+  var map : Map := new Map;
+  
+  for (prop : Model!Attribute in currentClass.attributes) {
+    if (map.containsKey (prop.type.name)) {
+      map.put (prop.type.name, true);
+    }
+    else {
+      map.put (prop.type.name, false);
+    }
+  }
+  
+  return map;
+}
+%]
