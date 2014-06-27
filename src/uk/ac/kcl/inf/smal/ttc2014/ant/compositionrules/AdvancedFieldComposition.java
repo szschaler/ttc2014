@@ -11,7 +11,7 @@ import de.ovgu.cide.fstgen.ast.FSTTerminal;
 /**
  * Special composition rule for class fields. This rule is able to compose
  * fields of different type. In particular, it can compose fields of type T with
- * fields of type Set<T> into a field of type Set<T>.
+ * fields of type List<T> into a field of type List<T>.
  * 
  * @author Steffen Zschaler
  * 
@@ -34,7 +34,7 @@ public class AdvancedFieldComposition extends FieldOverrideRule {
 		String sBody = t.getBody();
 
 		Matcher m = pModifiers.matcher(sBody);
-		if (m.matches()) {
+		if (m.find()) {
 			String[] saModifiers = m.group().split("\\s+");
 
 			// The last but one word should be the type of the field, assuming
@@ -80,24 +80,42 @@ public class AdvancedFieldComposition extends FieldOverrideRule {
 	@Override
 	public void compose(FSTTerminal terminalA, FSTTerminal terminalB,
 			FSTTerminal terminalComp, FSTNonTerminal nonterminalParent) {
+		System.out.println("AdvancedFieldComposition.compose()");
+		try {
+			String typeA = getType(terminalA);
+			String typeB = getType(terminalB);
 
-		String typeA = getType(terminalA);
-		String typeB = getType(terminalB);
+			System.out.println("Merging fields: " + typeA + ", " + typeB + ".");
 
-		if (!typeA.equals(typeB)) {
-			// Merge types if possible
-			if (typeA.equals("Set<" + typeB + ">")) {
-				setType(terminalB, typeA);
-			} else if (typeB.equals("Set<" + typeA + ">")) {
-				setType(terminalA, typeB);
-			} else {
-				throw new UnsupportedOperationException(
-						"Cannot currently unify these types: " + typeA + ", "
-								+ typeB);
+			if (!typeA.equals(typeB)) {
+				// FIXME: Ensure value assigned is also transferred correctly.
+				
+				// Merge types if possible
+				if (typeA.equals("List")) {
+					// generics aren't actually supported by our Java grammar
+					setType(terminalB, typeA);
+				} else if (typeB.equals("List")) {
+					// generics aren't actually supported by our Java grammar
+					setType(terminalA, typeB);
+				} else if (typeA.equals("List<" + typeB + ">")) {
+					setType(terminalB, typeA);
+				} else if (typeB.equals("List<" + typeA + ">")) {
+					setType(terminalA, typeB);
+				} else {
+					System.err.println("Cannot currently unify these types: "
+							+ typeA + ", " + typeB);
+					throw new UnsupportedOperationException(
+							"Cannot currently unify these types: " + typeA
+									+ ", " + typeB);
+				}
 			}
-		}
 
-		super.compose(terminalA, terminalB, terminalComp, nonterminalParent);
+			super.compose(terminalA, terminalB, terminalComp, nonterminalParent);
+		} catch (Throwable t) {
+			System.out.println(t.getMessage());
+			t.printStackTrace();
+			throw t;
+		}
 	}
 
 }
