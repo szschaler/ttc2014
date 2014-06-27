@@ -2,12 +2,15 @@ package [%=pck%];
 
 public class [%=currentClass.name%] {
 [%
-  var attrs : Map := reconcileAttributes();
+  var attrs : Map := currentClass.reconcileAttributes();
   for (pName : String in attrs.keySet()) {
     var isMulti := attrs.get(pName);
-    %]
-  private [%if (isMulti) {%]List<[%}%][%=pName %][%if (isMulti) {%]>[%}%] [%=pName %] = [%if (isMulti) {%]new ArrayList<>()[%} else { if (prop.type.isKindOf(Model!DataType)) {%] "[%=getProp(pName).value %]" [%} else {%] new [%=pName%] ()[%} }%]; 
-    [%  
+    var prop := currentClass.getProp(pName);
+    if (prop.type.isKindOf(Model!DataType)) {%]
+  private [%if (isMulti) {%]List[%} else {%][%=prop.type.name %][%}%] [%=prop.name %] = [%if (isMulti) {%]new ArrayList()[%} else {%]"[%=prop.value %]"[%}%];
+    [%} else {%] 
+  private [%if (isMulti) {%]List[%} else {%][%=prop.type.name %][%}%] [%=prop.name %] = [%if (isMulti) {%]new ArrayList()[%} else {%] new [%=prop.type.name %] ()[%}%]; 
+    [%}  
   }
 %]
 
@@ -29,18 +32,35 @@ public class [%=currentClass.name%] {
 }
 
 [%
-operation reconcileAttributes () : Map {
+operation Model!Class reconcileAttributes () : Map {
   var map : Map := new Map;
   
-  for (prop : Model!Attribute in currentClass.attributes) {
-    if (map.containsKey (prop.type.name)) {
-      map.put (prop.type.name, true);
+  for (prop : Model!Attribute in self.attributes) {
+    var propName := prop.getReconciledName();
+  
+    if (map.containsKey (propName)) {
+      map.put (propName, true);
     }
     else {
-      map.put (prop.type.name, false);
+      map.put (propName, false);
     }
   }
   
+  //('reconciledAttributes for ' + self.name + ' are ' + map.keySet()).println();
+  
   return map;
+}
+
+operation Model!Attribute getReconciledName() : String {
+  if (self.type.isKindOf (Model!DataType)) {
+    return self.name;
+  }
+  else {
+    return self.type.name;
+  }
+}
+
+operation Model!Class getProp (name : String) : Model!Attribute {
+  return self.attributes->selectOne (p | p.getReconciledName() == name);
 }
 %]
