@@ -1,8 +1,18 @@
 package [%=pck%];
 
+[% var attrs : Map := currentClass.reconcileAttributes(); %]
+
+[%
+  if (attrs.values()->exists(isMulti | isMulti)) {
+  %]
+import java.util.List;
+import java.util.ArrayList;
+  [%
+  } 
+%]
+
 public class [%=currentClass.name%] {
 [%
-  var attrs : Map := currentClass.reconcileAttributes();
   for (pName : String in attrs.keySet()) {
     var isMulti := attrs.get(pName);
     var prop := currentClass.getProp(pName);
