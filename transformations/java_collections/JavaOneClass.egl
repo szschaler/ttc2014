@@ -17,9 +17,9 @@ public class [%=currentClass.name%] {
     var isMulti := attrs.get(pName);
     var prop := currentClass.getProp(pName);
     if (prop.type.isKindOf(Model!DataType)) {%]
-  private [%if (isMulti) {%]List[%} else {%][%=prop.type.name %][%}%] [%=prop.name %] = [%if (isMulti) {%]new ArrayList()[%} else {%]"[%=prop.value %]"[%}%];
+  private [%if (isMulti) {%]List[%} else {%][%=prop.type.name %][%}%] [%=prop.getAttrName() %] = [%if (isMulti) {%]new ArrayList()[%} else {%]"[%=prop.value %]"[%}%];
     [%} else {%] 
-  private [%if (isMulti) {%]List[%} else {%][%=prop.type.name %][%}%] [%=prop.name %] = [%if (isMulti) {%]new ArrayList()[%} else {%] new [%=prop.type.name %] ()[%}%]; 
+  private [%if (isMulti) {%]List[%} else {%][%=prop.type.name %][%}%] [%=prop.getAttrName() %] = [%if (isMulti) {%]new ArrayList()[%} else {%] new [%=prop.type.name %] ()[%}%]; 
     [%}  
   }
 %]
@@ -35,7 +35,11 @@ public class [%=currentClass.name%] {
    		 [%
     		for (prop : Model!Attribute in currentClass.attributes) {
     	%]
-   			 this.[%=prop.name%] = [%=prop.name%];
+    	  [% if (attrs.get(prop.getReconciledName())) {%]
+   			 this.[%=prop.getAttrName()%].add ([%=prop.name%]);
+   	      [% } else {%]
+   			 this.[%=prop.getAttrName()%] = [%=prop.name%];
+   	      [% }%]
    		 [%}%]
   }
   [%}%]
@@ -67,6 +71,15 @@ operation Model!Attribute getReconciledName() : String {
   }
   else {
     return self.type.name;
+  }
+}
+
+operation Model!Attribute getAttrName() : String {
+  if (self.type.isKindOf (Model!DataType)) {
+    return self.name;
+  }
+  else {
+    return '_' + self.type.name;
   }
 }
 
