@@ -85,7 +85,7 @@ public class AdvancedFieldComposition extends FieldOverrideRule {
 			String typeA = getType(terminalA);
 			String typeB = getType(terminalB);
 
-			System.out.println("Merging fields: " + typeA + ", " + typeB + ".");
+			//System.out.println("Merging fields: " + typeA + ", " + typeB + ".");
 
 			if (!typeA.equals(typeB)) {
 				// FIXME: Ensure value assigned is also transferred correctly.
