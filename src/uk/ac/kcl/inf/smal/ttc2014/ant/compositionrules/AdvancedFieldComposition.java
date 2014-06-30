@@ -80,26 +80,29 @@ public class AdvancedFieldComposition extends FieldOverrideRule {
 	@Override
 	public void compose(FSTTerminal terminalA, FSTTerminal terminalB,
 			FSTTerminal terminalComp, FSTNonTerminal nonterminalParent) {
-		System.out.println("AdvancedFieldComposition.compose()");
+		//System.out.println("AdvancedFieldComposition.compose()");
 		try {
 			String typeA = getType(terminalA);
 			String typeB = getType(terminalB);
 
-			//System.out.println("Merging fields: " + typeA + ", " + typeB + ".");
+			// System.out.println("Merging fields: " + typeA + ", " + typeB +
+			// ".");
 
 			if (!typeA.equals(typeB)) {
 				// FIXME: Ensure value assigned is also transferred correctly.
-				
+
 				// Merge types if possible
-				if (typeA.equals("List")) {
-					// generics aren't actually supported by our Java grammar
+				if ((typeA.equals("List"))
+						// generics aren't actually supported by our Java
+						// grammar
+						|| (typeA.equals("List<" + typeB + ">"))
+						|| (typeA.equals(typeB + "[]"))) {
 					setType(terminalB, typeA);
-				} else if (typeB.equals("List")) {
-					// generics aren't actually supported by our Java grammar
-					setType(terminalA, typeB);
-				} else if (typeA.equals("List<" + typeB + ">")) {
-					setType(terminalB, typeA);
-				} else if (typeB.equals("List<" + typeA + ">")) {
+				} else if ((typeB.equals("List"))
+						// generics aren't actually supported by our Java
+						// grammar
+						|| (typeB.equals("List<" + typeA + ">"))
+						|| (typeB.equals(typeA + "[]"))) {
 					setType(terminalA, typeB);
 				} else {
 					System.err.println("Cannot currently unify these types: "
