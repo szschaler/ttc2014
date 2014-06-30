@@ -56,7 +56,7 @@ public class AdvancedFieldComposition extends FieldOverrideRule {
 		String sBody = t.getBody();
 
 		Matcher m = pModifiers.matcher(sBody);
-		if (m.matches()) {
+		if (m.find()) {
 			String[] saModifiers = m.group().split("\\s+");
 
 			// The last but one word should be the type of the field, assuming
@@ -73,14 +73,53 @@ public class AdvancedFieldComposition extends FieldOverrideRule {
 			m.appendReplacement(sbResult, sRecombined).appendTail(sbResult);
 
 			// Strip out any assignments and set body of field declaration
-			t.setBody(sbResult.toString().replaceAll("=[^;]+;", ";"));
+			// t.setBody(sbResult.toString().replaceAll("=.+$", ";"));
+			t.setBody(sbResult.toString());
+		}
+	}
+
+	/**
+	 * Pattern for matching the assignment part of the field declaration, if
+	 * any.
+	 */
+	private static Pattern pAssignment = Pattern.compile("=\\s*(.+)\\s*;\\s*$");
+
+	/**
+	 * Extract the value part of the field, if any.
+	 * 
+	 * @param t
+	 * @return
+	 */
+	private String getValue(FSTTerminal t) {
+		Matcher m = pAssignment.matcher(t.getBody());
+		if (m.find()) {
+			return m.group();
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Replace any assignment by the value given in the parameter.
+	 * 
+	 * @param t
+	 * @param sNewValue
+	 */
+	private void setValue(FSTTerminal t, String sNewValue) {
+		Matcher m = pAssignment.matcher(t.getBody());
+		if (m.find()) {
+			StringBuffer sbResult = new StringBuffer();
+			m.appendReplacement(sbResult, sNewValue).appendTail(sbResult);
+			t.setBody(sbResult.toString());
+		} else {
+			t.setBody(t.getBody().replaceAll(";$", " = " + sNewValue + ";"));
 		}
 	}
 
 	@Override
 	public void compose(FSTTerminal terminalA, FSTTerminal terminalB,
 			FSTTerminal terminalComp, FSTNonTerminal nonterminalParent) {
-		//System.out.println("AdvancedFieldComposition.compose()");
+		// System.out.println("AdvancedFieldComposition.compose()");
 		try {
 			String typeA = getType(terminalA);
 			String typeB = getType(terminalB);
@@ -89,8 +128,6 @@ public class AdvancedFieldComposition extends FieldOverrideRule {
 			// ".");
 
 			if (!typeA.equals(typeB)) {
-				// FIXME: Ensure value assigned is also transferred correctly.
-
 				// Merge types if possible
 				if ((typeA.equals("List"))
 						// generics aren't actually supported by our Java
@@ -98,12 +135,14 @@ public class AdvancedFieldComposition extends FieldOverrideRule {
 						|| (typeA.equals("List<" + typeB + ">"))
 						|| (typeA.equals(typeB + "[]"))) {
 					setType(terminalB, typeA);
+					setValue(terminalB, getValue(terminalA));
 				} else if ((typeB.equals("List"))
 						// generics aren't actually supported by our Java
 						// grammar
 						|| (typeB.equals("List<" + typeA + ">"))
 						|| (typeB.equals(typeA + "[]"))) {
 					setType(terminalA, typeB);
+					setValue(terminalA, getValue(terminalB));
 				} else {
 					System.err.println("Cannot currently unify these types: "
 							+ typeA + ", " + typeB);
