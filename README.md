@@ -2,9 +2,9 @@ Solution to the TTC 2014 ( http://www.transformation-tool-contest.eu/ ) FIXML ca
 
 Files:
 
-  TTC2014/ -- Eclipse project with the code generators and build file
+* TTC2014/ -- Eclipse project with the code generators and build file
   
-  TTC2014Helpers/ -- Eclipse project with some helpers
+* TTC2014Helpers/ -- Eclipse project with some helpers
   
 Dependencies:
 
