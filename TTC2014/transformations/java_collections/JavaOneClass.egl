@@ -1,0 +1,89 @@
+package [%=pck%];
+
+[% var attrs : Map := currentClass.reconcileAttributes(); %]
+
+[%
+  if (attrs.values()->exists(isMulti | isMulti)) {
+  %]
+import java.util.List;
+import java.util.ArrayList;
+  [%
+  } 
+%]
+
+public class [%=currentClass.name%] {
+[%
+  for (pName : String in attrs.keySet()) {
+    var isMulti := attrs.get(pName);
+    var prop := currentClass.getProp(pName);
+    if (prop.type.isKindOf(Model!DataType)) {%]
+  private [%if (isMulti) {%]List[%} else {%][%=prop.type.name %][%}%] [%=prop.getAttrName() %] = [%if (isMulti) {%]new ArrayList()[%} else {%]"[%=prop.value %]"[%}%];
+    [%} else {%] 
+  private [%if (isMulti) {%]List[%} else {%][%=prop.type.name %][%}%] [%=prop.getAttrName() %] = [%if (isMulti) {%]new ArrayList()[%} else {%] new [%=prop.type.name %] ()[%}%]; 
+    [%}  
+  }
+%]
+
+  public [%=currentClass.name%]() {}
+  
+  [%if ((not currentClass.attributes->isEmpty()) and
+        // Java is not happy with too many parameters 
+        (currentClass.attributes->size() <= 200)) {%]
+  public [%=currentClass.name%]([%var first = true;  
+  	for (prop : Model!Attribute in currentClass.attributes) {if (not first) {%], [%} 
+  		else {first = false;}%][%=prop.type.name%] [%=prop.name%][%}%]) {
+   		 [%
+    		for (prop : Model!Attribute in currentClass.attributes) {
+    	%]
+    	  [% if (attrs.get(prop.getReconciledName())) {%]
+   			 this.[%=prop.getAttrName()%].add ([%=prop.name%]);
+   	      [% } else {%]
+   			 this.[%=prop.getAttrName()%] = [%=prop.name%];
+   	      [% }%]
+   		 [%}%]
+  }
+  [%}%]
+}
+
+[%
+operation Model!Class reconcileAttributes () : Map {
+  var map : Map := new Map;
+  
+  for (prop : Model!Attribute in self.attributes) {
+    var propName := prop.getReconciledName();
+  
+    if (map.containsKey (propName)) {
+      map.put (propName, true);
+    }
+    else {
+      map.put (propName, false);
+    }
+  }
+  
+  //('reconciledAttributes for ' + self.name + ' are ' + map.keySet()).println();
+  
+  return map;
+}
+
+operation Model!Attribute getReconciledName() : String {
+  if (self.type.isKindOf (Model!DataType)) {
+    return self.name;
+  }
+  else {
+    return self.type.name;
+  }
+}
+
+operation Model!Attribute getAttrName() : String {
+  if (self.type.isKindOf (Model!DataType)) {
+    return self.name;
+  }
+  else {
+    return '_' + self.type.name;
+  }
+}
+
+operation Model!Class getProp (name : String) : Model!Attribute {
+  return self.attributes->selectOne (p | p.getReconciledName() == name);
+}
+%]

@@ -1,0 +1,70 @@
+pre {
+  var STRING_TYPE : Classes!DataType = new Classes!DataType;
+  STRING_TYPE.name = "String";
+}
+
+rule NodeToClass 
+	transform s : XML!XMLNode
+	to t : Classes!Class {
+
+  t.name = s.tag;
+ 
+  var uniqueID = new Map;
+  for (attr in s.attributes) {
+    var newAttr = attr.equivalent();
+    newAttr.name = newAttr.name.getUniqueVersion(uniqueID);
+    t.attributes = t.attributes->including (newAttr);
+  }
+  
+  for (elt in s.subnodes) {
+    var attr : Classes!Attribute = new Classes!Attribute;
+    t.attributes = t.attributes->including(attr);
+    // TODO: Need to add the underscore prefix to prevent an odd issue with how FeatureHouse treats attribute names.
+    attr.name = '_' + elt.tag.getUniqueVersion(uniqueID); 
+    //('Subnode attribute name: "' + attr.name + '"').println();
+    attr.type ::= elt;
+  }
+}
+
+rule AttrToAttr
+     transform s : XML!XMLAttribute
+     to t : Classes!Attribute {
+     
+  t.name = s.name;
+  t.value = s.value;
+  
+  t.type = STRING_TYPE;
+}
+
+post  {
+  var mdl : Classes!Model = new Classes!Model;
+  mdl.topClass ::= getTopNode();  
+  //('topClass is ' + mdl.topClass.name).println();	
+}
+
+operation getTopNode() : XML!XMLNode {
+  var resultSet = XML!XMLNode.all;
+  for (node in XML!XMLNode.all) {
+    resultSet = resultSet->excludingAll (node.subnodes);
+  }
+
+  return resultSet.random();
+}
+
+operation String getUniqueVersion(uniqueID) : String {
+  var result : Integer = 0;
+  if (uniqueID.containsKey(self)) {
+    result = uniqueID.get(self);
+    uniqueID.put(self, result + 1);
+  }
+  else {
+    uniqueID.put(self, 1);
+  }
+  
+  if (result == 0) {
+    return self;
+  }
+  else {
+    return self + result;
+  }
+}

@@ -1,0 +1,169 @@
+<project name="ttc2014" default="top" basedir="..">
+	<property name="tgtdir" value="${basedir}/src" />
+	
+	<target name="top"
+		    description="Triggers all generation of all problems in all languages"
+		    depends="init">
+		<foreach param="file" target="try-generate-all" inheritall="true" inheritrefs="true">
+			<path>
+				<fileset dir="${basedir}/files/">
+					<include name="**/*.xml"/>
+				</fileset>
+			</path>
+		</foreach>
+	</target>
+	
+	<target name="try-generate-all">
+		<trycatch>
+			<try>
+			  <antcall inheritrefs="true" target="generate-all"/>			
+			</try>
+			<catch/>
+		</trycatch>
+		<epsilon.disposeModels/>
+	</target>
+	
+	<target name="generate-all"
+		    depends="generate-java-collections,generate-java,generate-csharp">
+		<epsilon.disposeModels/>
+	</target>
+	
+	<target name="generate-java-collections" depends="generate-general">
+		<property name="tgt" value="${generate-tgt}/java_collections/"/>
+		<property name="tgt_pck" value="${tgtsubdir}.java_collections"/>
+		<property name="xform_dir" value="transformations/java_collections"/>
+		<timer name="ClassToJava_WithCollections">
+			<timer name="RegisterJava_WithCollections">
+				<epsilon.eglRegister src="${xform_dir}/GenerateMain.egl">
+					<model ref="classes" as="Model"/>
+					<parameter name="tgtdir" value="${tgt}"/>
+					<parameter name="pck" value="${tgt_pck}"/>
+				</epsilon.eglRegister>
+
+				<epsilon.eglRegister src="${xform_dir}/ToJava.egl">
+					<model ref="classes" as="Model"/>
+					<parameter name="tgtdir" value="${tgt}"/>
+					<parameter name="pck" value="${tgt_pck}"/>
+				</epsilon.eglRegister>
+			</timer>
+			
+			<timer name="MergeJava_WithCollections">
+				<epsilon.eglMerge failonerrors="true" failonwarnings="true">
+					<file>
+						<include name="${tgt}*.java" />
+						
+						<superimpose artifactHandler="java15" />
+					</file>
+				</epsilon.eglMerge>
+			</timer>
+		</timer>
+	</target>
+	
+	<target name="generate-java" depends="generate-general">
+		<timer name="ClassToJava">
+			<timer name="RegisterJava">
+				<epsilon.eglRegister src="transformations/java/GenerateMain.egl">
+					<model ref="classes" as="Model"/>
+					<parameter name="tgtdir" value="${generate-tgt}/java/"/>
+					<parameter name="pck" value="${tgtsubdir}.java"/>
+				</epsilon.eglRegister>
+		
+		        <epsilon.eglRegister src="transformations/java/ToJava.egl">
+		        	<model ref="classes" as="Model"/>
+					<parameter name="tgtdir" value="${generate-tgt}/java/"/>
+					<parameter name="pck" value="${tgtsubdir}.java"/>
+		        </epsilon.eglRegister>
+			</timer>
+			
+			<timer name="MergeJava">	    	
+				<epsilon.eglMerge failonerrors="true" failonwarnings="true">
+					<file>
+						<include name="${generate-tgt}/java/*.java" />
+		
+						<superimpose artifactHandler="java15" />
+					</file>
+				</epsilon.eglMerge>
+			</timer>
+		</timer>
+	</target>
+	
+	<target name="generate-csharp" depends="generate-general">
+		<timer name="ClassToCSharp">
+			<epsilon.eglRegister src="transformations/csharp/CSGenerateMain.egl">
+				<model ref="classes" as="Model"/>
+				<parameter name="tgtdir" value="${generate-tgt}/csharp/"/>
+			</epsilon.eglRegister>
+	
+	        <epsilon.eglRegister src="transformations/csharp/ToCS.egl">
+	        	<model ref="classes" as="Model"/>
+				<parameter name="tgtdir" value="${generate-tgt}/csharp/"/>
+	        </epsilon.eglRegister>
+	    	
+			<epsilon.eglMerge failonerrors="true" failonwarnings="true">
+				<file>
+					<include name="${generate-tgt}/csharp/*.cs" />
+	
+					<superimpose artifactHandler="csharp" />
+				</file>
+			</epsilon.eglMerge>
+		</timer>
+	</target>
+	
+	<target name="generate-general" depends="generate-init">
+		<timer name="LoadXML">
+			<epsilon.xml.loadModel name="xmlFile" file="${file}" read="true"
+			                       failonerrors="true" failonwarnings="true" />
+			
+			<epsilon.emf.loadModel name="xmlModel" metamodelfile="${basedir}/models/xml.ecore" 
+				                   read="false" store="false"/>
+			<epsilon.eol src="transformations/general/LoadXML.eol">
+				<model ref="xmlFile" as="XMLDoc" />
+				<model ref="xmlModel" as="XML" />
+			</epsilon.eol>
+		</timer>
+	
+		<timer name="XMLToClass">
+			<epsilon.emf.loadModel name="classes" 
+			                       metamodelfile="${basedir}/models/classes.ecore"
+			                       read="false" store="false"/>
+			<epsilon.etl src="transformations/general/XMLtoClass.etl">
+				<model ref="xmlModel" as="XML" />
+				<model ref="classes" as="Classes" />
+			</epsilon.etl>
+		</timer>
+	</target>
+	
+	<target name="generate-init">
+		<basename file="${file}" property="tgtsubdir" suffix="xml"/>
+		<property name="generate-tgt" value="${tgtdir}/${tgtsubdir}"/>
+
+		<mkdir dir="${generate-tgt}"/>
+		<mkdir dir="${generate-tgt}/java"/>
+		<mkdir dir="${generate-tgt}/java_collections"/>
+		<mkdir dir="${generate-tgt}/csharp"/>
+	</target>
+	
+	<target name="init">
+		<!-- Helper for foreach -->
+		<taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+		
+		<!-- Helper for timer -->
+		<taskdef name="timer" classname="uk.ac.kcl.inf.smal.ttc2014.ant.timer.Timer"/>
+		
+		<timer name="Init">
+			<!-- Introduce the superimposition merge strategy -->
+			<typedef name="superimpose" classname="org.eclipse.epsilon.egl.symmetric_ao.tasks.superimpose.SuperimpositionMerge"/>
+			
+			<!-- Introduce our special field composition rule -->
+			<epsilon.egl.superImpose.registerRules>
+				<rule name="FieldOverriding" class="uk.ac.kcl.inf.smal.ttc2014.ant.compositionrules.AdvancedFieldComposition"/>
+			</epsilon.egl.superImpose.registerRules>
+			
+			<!-- Ensure ${tgtdir} exists and is empty -->
+			<mkdir dir="${tgtdir}" />
+	        <delete includeemptydirs="true">
+	            <fileset dir="${tgtdir}" includes="**/*" />
+	        </delete>
+		</timer>
+	</target>
+</project>

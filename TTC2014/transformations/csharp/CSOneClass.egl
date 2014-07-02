@@ -1,0 +1,25 @@
+using System;
+
+public class [%=currentClass.name%] {
+[%
+  for (prop : Model!Attribute in currentClass.attributes) {
+    %]
+  private [%=prop.type.name%] [%=prop.name%];
+    [%
+  }
+%]
+
+  public [%=currentClass.name%]() {}
+  
+  [%if (not currentClass.attributes->isEmpty()) {%]
+  public [%=currentClass.name%]([%var first = true; 
+  	for (prop : Model!Attribute in currentClass.attributes) {if (not first) {%], [%} 
+  		else {first = false;}%][%=prop.type.name%] [%=prop.name%][%}%]) {
+   		 [%
+    		for (prop : Model!Attribute in currentClass.attributes) {
+    	%]
+   			 this.[%=prop.name%] = [%=prop.name%];
+   		 [%}%]
+  }
+  [%}%]
+}

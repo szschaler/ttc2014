@@ -1,0 +1,27 @@
+package [%=pck%];
+
+public class [%=currentClass.name%] {
+[%
+  for (prop : Model!Attribute in currentClass.attributes) {
+    %]
+  private [%=prop.type.name%] [%=prop.name%] =  [%if (prop.type.isKindOf(Model!DataType)) {%] "[%=prop.value %]" [%} else {%] new [%=prop.type.name%] ()[%}%];
+    [%
+  }
+%]
+
+  public [%=currentClass.name%]() {}
+  
+  [%if ((not currentClass.attributes->isEmpty()) and
+        // Java is not happy with too many parameters 
+        (currentClass.attributes->size() <= 200)) {%]
+  public [%=currentClass.name%]([%var first = true;  
+  	for (prop : Model!Attribute in currentClass.attributes) {if (not first) {%], [%} 
+  		else {first = false;}%][%=prop.type.name%] [%=prop.name%][%}%]) {
+   		 [%
+    		for (prop : Model!Attribute in currentClass.attributes) {
+    	%]
+   			 this.[%=prop.name%] = [%=prop.name%];
+   		 [%}%]
+  }
+  [%}%]
+}

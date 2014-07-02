@@ -1,0 +1,7 @@
+[%
+  for (cl in Model!Class.all()) {
+    var t := TemplateFactory.load('CSOneClass.egl');
+    t.populate ('currentClass', cl);
+    t.generate (tgtdir + cl.name + '.cs');
+  }
+%]
