@@ -9,3 +9,6 @@ Files:
 Dependencies:
 
   Requires Epsilon ( http://www.eclipse.org/epsilon/ ) and the plugins for symmetric aspect-oriented code generation ( see https://code.google.com/p/epsilonlabs/ ).
+
+
+More information at http://www.steffen-zschaler.de/publications/ttc2014/
